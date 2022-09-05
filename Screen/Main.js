@@ -15,8 +15,13 @@ import DesignButton from '../Components/DesignButton'
 
 const asyncStore = Store({AsyncStorage});
 
+// const gun = GUN({
+//   peers: ['http://203.247.240.236:8765/gun'],
+//   store: asyncStore,
+// })
+
 const gun = GUN({
-  peers: ['http:localhost:8000/gun'],
+  peers: ['http://localhost:8000/gun'],
   store: asyncStore,
 })
 

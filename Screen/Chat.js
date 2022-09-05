@@ -21,10 +21,15 @@ import Store from 'gun/lib/ras.js';
 
 const asyncStore = Store({AsyncStorage});
 
+// const gun = GUN({
+//   peers: ['http://203.247.240.236:8765/gun'],
+//   store: asyncStore,
+// })
+
 const gun = GUN({
-  peers: ['http:localhost:8000/gun'],
-  store: asyncStore,
-})
+    peers: ['http://localhost:8000/gun'],
+    store: asyncStore,
+  })
 
 const initialState = {
    messages: [],
@@ -156,7 +161,7 @@ function Chat({route,navigation}){
                     ))}
                 </ScrollView>
                 <View style={styles.row}>
-                    <TextInput style={styles.Chatinput} type="text" placeholder="My message" onChangeText={(e) => onChange("messageState",e)}/>
+                    <TextInput style={styles.Chatinput} type="text" placeholder="My message" value={messageState} onChangeText={(e) => onChange("messageState",e)}/>
                     <TouchableOpacity onPress={()=> saveMessage()}>
                     <Ionicons name="send" size={30} color="black"></Ionicons>
                     </TouchableOpacity>
