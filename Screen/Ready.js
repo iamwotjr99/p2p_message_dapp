@@ -19,7 +19,7 @@ function Ready({route,navigation}){
 
     const LogoutBtn = async () => {
         console.log('logout btn in ready');
-        navigation.goBack();
+        // navigation.goBack();
         console.log('logout');
     }
 
