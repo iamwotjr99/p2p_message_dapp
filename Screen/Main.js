@@ -70,6 +70,7 @@ function Main({navigation}) {
     new Promise((resolve, reject) => {
         gun.user().auth(userForm.alias, userForm.password, async res => {
             console.log('Gun user auth result: ', res, res.put.alias);
+            console.log('pair: ', res.sea);
             if(!res.err) {
               setAlias(res.put.alias);
               navigation.navigate("Ready", {
