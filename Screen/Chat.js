@@ -69,18 +69,6 @@ function Chat({route,navigation}){
       console.log('userList: ', userList);
     }, [roomState.RoomState, userList]);
 
-    const onChange = (keyvalue, e) => {
-      setMessage(e)
-    }   
-
-    function Back(){
-      navigation.navigate('Ready',{
-      alias: alias,
-      roomState: "",
-      pair: pair
-      })
-    }
-
     async function initRoom() {
       const currentRoom = gun.get(roomState.RoomState);
       currentRoom.get('user').get(alias).put(userInfo);
@@ -157,7 +145,7 @@ function Chat({route,navigation}){
           }).then((res) => {
             onQuery();
             setIsLoading(false);
-            Alert.alert("Hash Recorded: \n"+res.data.Hash);
+            alert("Hash Recorded: \n"+res.data.Hash);
             console.log(res.data.hash);
           }).catch((error) => {
             console.log(error);
@@ -181,49 +169,58 @@ function Chat({route,navigation}){
         //Recording on message 버튼 클릭 당시의 메세지들의 해쉬값
         const hash=CryptoJS.SHA256(JSON.stringify(wholemessages._.graph)).toString()
         axios.get(`http://203.247.240.236:1206/api/query/${roomState.RoomState}`).then((res) => {
-            res.data.hash == undefined ? 
-            Alert.alert("No Recorded Hash \n Now Hash \n" + hash) : 
-            Alert.alert('✏️ ' + res.data.postid + "Recorded Hash at " + res.data.dateTime + '\n' + res.data.hash + "\n \n 🔎 Now Hash \n" + hash);
+            alert("✏️ "+res.data.postid +" Recorded Hash at "+res.data.datetime+"\n"+res.data.hash+" \n  \n 🔎 Now Hash \n"+hash)
         }).catch((error) => {
           console.log(error);
         })
     }
 
+    function Back(){
+      navigation.navigate('Ready',{
+      alias: alias,
+      roomState: "",
+      pair: pair
+      })
+    }
 
-      return(
-        <View style={styles.home}>
-            <Header
-            backgroundColor='grey'
-            leftComponent={<TouchableOpacity onPress={Back}><Ionicons name="chevron-back-outline" size={25} color="black" /></TouchableOpacity>}
-            centerComponent={{ text:roomState.RoomState,style:{width:200,fontSize:30,fontWeight: 'bold'}}}
-            rightComponent={<View style={styles.row}>
-                              <TouchableOpacity onPress={onHashMessage}>
-                                <Ionicons name="save-outline" size={25} color="black" />
-                              </TouchableOpacity>
-                              <TouchableOpacity style={{ marginLeft: 10 }} onPress={onChainQuery}>
-                                <Ionicons name="checkbox-outline" size={25} color="black" />
-                              </TouchableOpacity>
-                            </View>}
-            />
-            <View style={styles.main}>
-            {isLoading ? <ActivityIndicator style={styles.loading} size="large" color="#0000ff"/> : <></>}
-                <ScrollView style={styles.main}>
-                    {state.messages.map((message, createdAt) => (
-                        <View style={styles.message} key={createdAt}>
-                            <Text>{message.name} : {message.message}</Text>
-                            <Text style={styles.addtext}>{message.createdAt}</Text>
-                        </View>
-                    ))}
-                </ScrollView>
-                <View style={styles.row}>
-                    <TextInput style={styles.Chatinput} type="text" placeholder="My message" value={messageState} onChangeText={(e) => onChange("messageState",e)}/>
-                    <TouchableOpacity onPress={()=> saveMessage()}>
-                      <Ionicons name="send" size={30} color="black"></Ionicons>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </View>
-      )
+    const onChange = (keyvalue, e) => {
+      setMessage(e)
+    }   
+
+    return(
+      <View style={styles.home}>
+          <Header
+          backgroundColor='grey'
+          leftComponent={<TouchableOpacity onPress={Back}><Ionicons name="chevron-back-outline" size={25} color="black" /></TouchableOpacity>}
+          centerComponent={{ text:roomState.RoomState,style:{width:200,fontSize:30,fontWeight: 'bold'}}}
+          rightComponent={<View style={styles.row}>
+                            <TouchableOpacity onPress={onHashMessage}>
+                              <Ionicons name="save-outline" size={25} color="black" />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={{ marginLeft: 10 }} onPress={onChainQuery}>
+                              <Ionicons name="checkbox-outline" size={25} color="black" />
+                            </TouchableOpacity>
+                          </View>}
+          />
+          <View style={styles.main}>
+          {isLoading ? <ActivityIndicator style={styles.loading} size="large" color="#0000ff"/> : <></>}
+              <ScrollView style={styles.main}>
+                  {state.messages.map((message, createdAt) => (
+                      <View style={styles.message} key={createdAt}>
+                          <Text>{message.name} : {message.message}</Text>
+                          <Text style={styles.addtext}>{message.createdAt}</Text>
+                      </View>
+                  ))}
+              </ScrollView>
+              <View style={styles.row}>
+                  <TextInput style={styles.Chatinput} type="text" placeholder="My message" value={messageState} onChangeText={(e) => onChange("messageState",e)}/>
+                  <TouchableOpacity onPress={()=> saveMessage()}>
+                    <Ionicons name="send" size={30} color="black"></Ionicons>
+                  </TouchableOpacity>
+              </View>
+          </View>
+      </View>
+    )
 }
 
 export default Chat;
