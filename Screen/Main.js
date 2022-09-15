@@ -30,7 +30,6 @@ const timer = () => {
 };
 
 function Main({navigation}) {
-  const [roomState, setRoom] = useState("");
   const [userForm, setUserForm] = useState({
     alias: "",
     password: "",
@@ -66,6 +65,7 @@ function Main({navigation}) {
               setAlias(res.put.alias);
               navigation.navigate("Ready", {
                   alias: res.put.alias,
+                  password: userForm.password,
                   pair: res.sea,
               });
               resolve({user: gun.user().pair(), err: res.err});
@@ -96,39 +96,7 @@ function Main({navigation}) {
     })
   }
 
-  const onChangeRoomHandler = (keyValue, e) => {
-    setRoom({
-      [keyValue]: e,
-    })
-  }
-
-  const LogoutBtn = async () => {
-    console.log('logout btn Click');
-    await logoutUser();
-
-    window.location.reload();
-    console.log('logout');
-}
-
-const EntranceBtn=()=>{
-    console.log(roomState)
-    navigation.navigate("Chat", {
-        alias:alias,
-        roomState: roomState,
-    });
-
-}
-
-  return(<>
-    {gun.user().is?
-    <View style={styles.main} >
-        <Text>Welcome! {alias}</Text>
-        <DesignButton text="Logout" buttonFunction={() => LogoutBtn()} width="30%" height="8%" bgcolor="grey" color={"black"} outline={false}/>
-        <TextInput  style={styles.input} type="text" placeholder="Room Number" name="Roomnumber" onChangeText={(e) => onChangeRoomHandler("RoomState", e)}/>
-        <DesignButton text="Entrance" buttonFunction={() => EntranceBtn()} width="30%" height="8%" bgcolor="grey" color={"black"} outline={false} />
-    </View>
-    
-    :
+  return(
     <View style={styles.main}>
       <WebviewCrypto />
       <TextInput  style={styles.input} type="text" placeholder="ID" name="alias" onChangeText={(e) => onChangeHandler("alias", e)}/>
@@ -136,8 +104,8 @@ const EntranceBtn=()=>{
       <DesignButton text="Login" buttonFunction={loginBtn} width="30%" height="8%" bgcolor="grey" color={"black"} outline={false} />
       <DesignButton text="SignUp" buttonFunction={() => signUpBtn()} width="30%" height="8%" bgcolor="grey" color={"black"} outline={false} />
     </View>
-    }
-      </>)
+    
+    )
 }
 
 const styles = StyleSheet.create({
