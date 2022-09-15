@@ -1,21 +1,45 @@
+import {View, Text, StyleSheet} from 'react-native';
+
 function Message({message, name}) {
     const messageState = message.name === name ? 'sender' : 'receiver';
 
     return (
-        <div className={`message_${messageState}`}>
-            <div className="message_name">{message.name}</div>
+        <View>
+            <View style="message_name">
+                <Text>{message.name}</Text>
+            </View>
             {messageState === 'sender' ? 
-                <div className="message_column">
-                    <div className="message_time">{message.createdAt}</div>
-                    <div className="message_content">{message.message}</div>
-                </div> : 
-                <div className="message_column">
-                    <div className="message_content">{message.message}</div>
-                    <div className="message_time">{message.createdAt}</div>
-                </div>
+                <View style="message_column">
+                    <View style="message_time">
+                        <Text>{message.createdAt}</Text>
+                    </View>
+                    <View style="message_content">
+                        <Text>{message.message}</Text>
+                    </View>
+                </View> : 
+                <View style="message_column">
+                    <View style="message_content">
+                        <Text>{message.message}</Text>
+                    </View>
+                    <View style="message_time">
+                        <Text>{message.createdAt}</Text>
+                    </View>
+                </View>
             }
-        </div>
+        </View>
     )
 }
 
 export default Message;
+
+
+const styles = StyleSheet.create({
+    message_sender: {
+        paddingRight: "2%",
+        marginLeft: "auto",
+    },
+    message_receiver: {
+        paddingLeft: "2%",
+        marginRight: "auto",
+    }
+})

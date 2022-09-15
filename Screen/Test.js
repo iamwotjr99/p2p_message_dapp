@@ -127,6 +127,7 @@ function Test({navigation}) {
         navigation.navigate('Chat', {
             alias:alias,
             roomState: roomState,
+            pair: gun.user()._.sea
         });
 
     }

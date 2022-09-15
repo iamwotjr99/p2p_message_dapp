@@ -21,7 +21,8 @@ function App() {
                     android: false,
                 }) 
             }}>
-                <Stack.Screen name="Test" component={Test} />
+                <Stack.Screen name="Main" component={Main} />
+                <Stack.Screen name="Ready" component={Ready} />
                 <Stack.Screen name="Chat" component={Chat} />
             </Stack.Navigator>
         </NavigationContainer>

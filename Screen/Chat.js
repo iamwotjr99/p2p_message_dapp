@@ -17,6 +17,8 @@ import 'gun/lib/store.js';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Store from 'gun/lib/ras.js';
 
+import Message from '../Components/Message';
+
 
 
 const asyncStore = Store({AsyncStorage});
@@ -207,8 +209,7 @@ function Chat({route,navigation}){
               <ScrollView style={styles.main}>
                   {state.messages.map((message, createdAt) => (
                       <View style={styles.message} key={createdAt}>
-                          <Text>{message.name} : {message.message}</Text>
-                          <Text style={styles.addtext}>{message.createdAt}</Text>
+                          <Message message={message} name={alias}/>
                       </View>
                   ))}
               </ScrollView>
