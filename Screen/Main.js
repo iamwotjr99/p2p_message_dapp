@@ -15,13 +15,8 @@ import DesignButton from '../Components/DesignButton'
 
 const asyncStore = Store({AsyncStorage});
 
-// const gun = GUN({
-//   peers: ['http://203.247.240.236:8765/gun'],
-//   store: asyncStore,
-// })
-
 const gun = GUN({
-  peers: ['http://localhost:8000/gun'],
+  peers: ['http://203.247.240.236:8765/gun'],
   store: asyncStore,
 })
 
@@ -49,7 +44,6 @@ function Main({navigation}) {
   useEffect(() => {
     if(gun.user().is) {
         gun.user(gun.user().is.pub).once((res) => {
-            console.log("userInfo for pub", res);
             setAlias(res.alias);
         });
     }
@@ -60,7 +54,6 @@ function Main({navigation}) {
         console.log('start login');
         console.log(userForm.alias, userForm.password);
         gun.user().create(userForm.alias, userForm.password, async res => {
-            console.log('Gun user created result:', res);
             resolve(true);
         })
     })
@@ -69,12 +62,11 @@ function Main({navigation}) {
   const authUser = () => 
     new Promise((resolve, reject) => {
         gun.user().auth(userForm.alias, userForm.password, async res => {
-            console.log('Gun user auth result: ', res, res.put.alias);
-            console.log('pair: ', res.sea);
             if(!res.err) {
               setAlias(res.put.alias);
               navigation.navigate("Ready", {
                   alias: res.put.alias,
+                  pair: res.sea,
               });
               resolve({user: gun.user().pair(), err: res.err});
             } else {

@@ -21,15 +21,10 @@ import Store from 'gun/lib/ras.js';
 
 const asyncStore = Store({AsyncStorage});
 
-// const gun = GUN({
-//   peers: ['http://203.247.240.236:8765/gun'],
-//   store: asyncStore,
-// })
-
 const gun = GUN({
-    peers: ['http://localhost:8000/gun'],
-    store: asyncStore,
-  })
+  peers: ['http://203.247.240.236:8765/gun'],
+  store: asyncStore,
+})
 
 const initialState = {
    messages: [],
@@ -47,59 +42,106 @@ function Chat({route,navigation}){
     const {roomState}=route.params
 
     const [state, dispatch] = useReducer(reducer, initialState);
+
     const [originalhash, setoriginalhash] = useState("");
+
     const [messageState, setMessage] = useState("");
+
     const [isLoading, setIsLoading] = useState(false);
 
-    // const user = gun.user().recall({asyncStore: true});
-    // console.log('user: ', user);
-    console.log('pair: ', pair);
+    const [userList, setUserList] = useState([]);
+
+    const userInfo = {
+      alias: alias,
+      epub: pair.epub,
+      pub: pair.pub
+    }
+
 
     useEffect(() => {
       console.log("User Name: ", alias);
       console.log("Chatting Room Name: ", roomState.RoomState);
       console.log("useEffect Hook 😆");
-      const messages = gun.get(roomState.RoomState);
-      console.log("messages: " , messages)
-      messages.map().once((m) => {
-        console.log(m);
-        dispatch({
-          name: m.name,
-          message: m.message,
-          createdAt: m.createdAt,
-        });
-      });
       onHashMessage();
-    }, [roomState.RoomState]);
+      initRoom();
+      getUserList();
+      getMessage();
+      console.log('userList: ', userList);
+    }, [roomState.RoomState, userList]);
 
-    const onChange = (keyvalue,e) => {
-      console.log(keyvalue,e)
+    const onChange = (keyvalue, e) => {
       setMessage(e)
-
     }   
 
     function Back(){
       navigation.navigate('Ready',{
-      alias: alias
+      alias: alias,
+      roomState: "",
+      pair: pair
       })
     }
 
-    const saveMessage= () => {
-        const messages = gun.get(roomState.RoomState);
-        messages.set({
-          name: alias,
-          message: messageState,
-          createdAt: Date().toLocaleString(),
-        });
-        setMessage(" ");
+    async function initRoom() {
+      const currentRoom = gun.get(roomState.RoomState);
+      currentRoom.get('user').get(alias).put(userInfo);
+      currentRoom.get('user').map().once((user) => {
+        console.log('user:', user);
+      })
     }
 
+    async function saveMessage() {
+      const messages = gun.get(roomState.RoomState);
+      const createdAt = new Date().toLocaleString();
+      const encryptAlias = await SEA.encrypt(alias, pair.epub);
+      const encryptMsg = await SEA.encrypt(messageState, pair.epub);
+      const encryptTime = await SEA.encrypt(createdAt, pair.epub);
+      const signAlias = await SEA.sign(encryptAlias, pair);
+      const signMsg = await SEA.sign(encryptMsg, pair);
+      const signTime = await SEA.sign(encryptTime, pair);
+      messages.set({
+        name: signAlias,
+        message: signMsg,
+        createdAt: signTime,
+      });
+      setMessage("");
+  }
+
+    function getMessage() {
+      const messages = gun.get(roomState.RoomState);
+      const users = gun.get(roomState.RoomState).get('user');
+      messages.map().once(async (msg) => {
+
+        users.map().once(async (user) => {
+          const verifiedAlias = await SEA.verify(msg.name, user.pub);
+          const verifiedMsg = await SEA.verify(msg.message, user.pub);
+          const verifiedTime = await SEA.verify(msg.createdAt, user.pub);
+          const decryptedAlias = await SEA.decrypt(verifiedAlias, user.epub);
+          const decryptedMsg = await SEA.decrypt(verifiedMsg, user.epub);
+          const decryptedTime = await SEA.decrypt(verifiedTime, user.epub);
+
+          if(decryptedAlias !== undefined) {
+            dispatch({
+              name: decryptedAlias,
+              message: decryptedMsg,
+              createdAt: decryptedTime,
+            });
+          }
+        })
+      });
+    }
+
+    function getUserList() {
+      const users = gun.get(roomState.RoomState).get('user');
+      users.map().once((user) => {
+        userList.push(user);
+      })
+    }
 
     //블록체인에 총 메세지의 해쉬값 전달 완성
     const onHashMessage = async () => {
       const wholemessages = gun.put(roomState.RoomState);
       console.log('onHashMessage');
-      console.log(wholemessages._.graph)
+      // console.log(wholemessages._.graph)
       //Recording on message 버튼 클릭 당시의 메세지들의 해쉬값
       const hash=CryptoJS.SHA256(JSON.stringify(wholemessages._.graph)).toString()
       //그 전의 메세지들의 해쉬값(블록체인에 저장되어있는 해쉬값)
@@ -133,9 +175,9 @@ function Chat({route,navigation}){
 
     //블록체인에 저장되어있는 해쉬값 호출
     function onChainQuery(){
-        console.log(roomState.RoomState)
+        // console.log(roomState.RoomState)
         const wholemessages = gun.put(roomState.RoomState);
-        console.log(wholemessages._.graph)
+        // console.log(wholemessages._.graph)
         //Recording on message 버튼 클릭 당시의 메세지들의 해쉬값
         const hash=CryptoJS.SHA256(JSON.stringify(wholemessages._.graph)).toString()
         axios.get(`http://203.247.240.236:1206/api/query/${roomState.RoomState}`).then((res) => {
@@ -152,14 +194,14 @@ function Chat({route,navigation}){
         <View style={styles.home}>
             <Header
             backgroundColor='grey'
-            leftComponent={<TouchableOpacity onPress={Back}><Ionicons name="chevron-back-outline" size={30} color="black" /></TouchableOpacity>}
+            leftComponent={<TouchableOpacity onPress={Back}><Ionicons name="chevron-back-outline" size={25} color="black" /></TouchableOpacity>}
             centerComponent={{ text:roomState.RoomState,style:{width:200,fontSize:30,fontWeight: 'bold'}}}
             rightComponent={<View style={styles.row}>
                               <TouchableOpacity onPress={onHashMessage}>
-                                <Ionicons name="save-outline" size={30} color="black" />
+                                <Ionicons name="save-outline" size={25} color="black" />
                               </TouchableOpacity>
                               <TouchableOpacity style={{ marginLeft: 10 }} onPress={onChainQuery}>
-                                <Ionicons name="checkbox-outline" size={30} color="black" />
+                                <Ionicons name="checkbox-outline" size={25} color="black" />
                               </TouchableOpacity>
                             </View>}
             />
@@ -168,9 +210,8 @@ function Chat({route,navigation}){
                 <ScrollView style={styles.main}>
                     {state.messages.map((message, createdAt) => (
                         <View style={styles.message} key={createdAt}>
-                            <Text>{message.name}</Text>
-                            <Text>{message.message}</Text>
-                            <Text>{message.createdAt}</Text>
+                            <Text>{message.name} : {message.message}</Text>
+                            <Text style={styles.addtext}>{message.createdAt}</Text>
                         </View>
                     ))}
                 </ScrollView>
@@ -239,5 +280,9 @@ const styles = StyleSheet.create({
     height:"90%",
     width:"95%",
     zIndex: 1
-  }
+  },
+  addtext:{
+    fontSize:8,
+    color:"darkgrey",
+  },
 });

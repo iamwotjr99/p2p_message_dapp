@@ -7,6 +7,7 @@ import 'react-native-get-random-values';
 
 function Ready({route,navigation}){
     const {alias}=route.params;
+    const {pair} = route.params;
     
     const [roomState, setRoom] = useState("");
 
@@ -28,6 +29,7 @@ function Ready({route,navigation}){
         navigation.navigate("Chat", {
             alias:alias,
             roomState: roomState,
+            pair: pair
         });
 
     }

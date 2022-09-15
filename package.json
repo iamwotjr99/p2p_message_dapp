@@ -30,7 +30,8 @@
     "text-encoding": "^0.7.0",
     "expo-splash-screen": "~0.16.2",
     "react-dom": "18.0.0",
-    "react-native-web": "~0.18.7"
+    "react-native-web": "~0.18.7",
+    "@expo/webpack-config": "^0.17.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"
